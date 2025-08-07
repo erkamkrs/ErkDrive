@@ -30,8 +30,10 @@ ErkDrive is a full-stack cloud storage application similar to Google Drive. It a
   - Upload, browse, and download files
   - Supports folder creation and breadcrumb navigation
   - Displays file type, size, and upload time
+  - Search the name of the file type in search-bar
 
 ![File Browser](public/file-browser.png)
+![Search Bar](public/search-bar.png)
 
 ### 📤 File Upload  
   - Drag-and-Drop Upload
