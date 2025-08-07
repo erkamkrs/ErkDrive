@@ -28,6 +28,8 @@ vite.config.ts.timestamp-*
 data/minio/
 
 # MongoDB data
-data/mongodb/
-data/mongo/
+.wt*
+.lock*
+.turtle*
+
 diagnostic.data/
