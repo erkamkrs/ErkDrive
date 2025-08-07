@@ -109,8 +109,11 @@ async def upload_file(file: UploadFile = File(...), folder: str = "root"):
     return {"message": "Uploaded successfully", "id": file_id}
 
 @app.get("/files")
-def list_files(folder: str = "root"):
-    files = list(files_collection.find({"folder": folder}))
+def list_files(folder: str = "root", sort_by: str = "filename", sort_order: str = "asc"):
+    sort_field = sort_by if sort_by in ["filename", "upload_date", "size"] else "filename"
+    sort_direction = 1 if sort_order == "asc" else -1
+    
+    files = list(files_collection.find({"folder": folder}).sort(sort_field, sort_direction))
     for f in files:
         f["id"] = str(f["_id"])
         del f["_id"]
@@ -148,3 +151,36 @@ def delete_file(file_id: str):
         return {"message": "Deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+@app.get("/preview/{file_id}")
+def preview_file(file_id: str):
+    try:
+        obj = minio_client.get_object(BUCKET, file_id)
+        metadata = files_collection.find_one({"_id": file_id})
+        if not metadata:
+            raise HTTPException(status_code=404, detail="Metadata not found")
+        
+        # For images and PDFs, we can send them directly for preview
+        if metadata["content_type"].startswith("image/"):
+            return StreamingResponse(obj, media_type=metadata["content_type"])
+        
+        # For other file types, we might want to handle differently
+        raise HTTPException(status_code=400, detail="Preview not available for this file type")
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
+    
+@app.get("/search")
+def search_files(query: str):
+    # Search in filename or content type
+    regex = {"$regex": query, "$options": "i"}
+    files = list(files_collection.find({
+        "$or": [
+            {"filename": regex},
+            {"content_type": regex}
+        ]
+    }))
+    for f in files:
+        f["id"] = str(f["_id"])
+        del f["_id"]
+    return files

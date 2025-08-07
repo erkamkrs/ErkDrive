@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import FileUpload from "./FileUpload.svelte";
+    import Modal from "./Modal.svelte";
 
     type FileItem = {
         id: string;
@@ -20,6 +21,16 @@
     let folderPath: Folder[] = [{ id: "root", name: "root" }];
     let isLoading = true;
     let error = "";
+    let searchQuery = "";
+    let sortField: "filename" | "upload_date" | "size" = "filename";
+    let sortOrder: "asc" | "desc" = "asc";
+    let previewFile: FileItem | null = null;
+    let showPreview = false;
+    let activeSort = {
+        field: "filename",
+        order: "asc"
+    };
+    let showSortDropdown = false;
 
     function currentFolderId(): string {
         return folderPath[folderPath.length - 1].id;
@@ -30,9 +41,13 @@
     async function fetchFiles() {
         try {
             isLoading = true;
-            const response = await fetch(
-                `http://localhost:8000/files?folder=${currentFolderId()}`,
-            );
+            let url = `http://localhost:8000/files?folder=${currentFolderId()}&sort_by=${sortField}&sort_order=${sortOrder}`;
+            
+            if (searchQuery) {
+                url = `http://localhost:8000/search?query=${encodeURIComponent(searchQuery)}`;
+            }
+
+            const response = await fetch(url);
             files = await response.json();
             error = "";
         } catch (err) {
@@ -79,9 +94,54 @@
             console.error(err);
         }
     }
+
+    function handlePreview(file: FileItem, event: MouseEvent) {
+        event.stopPropagation();
+        if (file.is_folder) return;
+        
+        if (file.content_type?.startsWith("image/") || file.content_type === "application/pdf") {
+            previewFile = file;
+            showPreview = true;
+        }
+    }
+
+    function handleSort(field: "filename" | "upload_date" | "size") {
+        if (sortField === field) {
+            sortOrder = sortOrder === "asc" ? "desc" : "asc";
+        } else {
+            sortField = field;
+            sortOrder = "asc";
+        }
+        fetchFiles();
+    }
+
+    function handleSearch() {
+        fetchFiles();
+    }
 </script>
 
 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Search Bar -->
+    <div class="mb-6">
+        <div class="relative rounded-md shadow-sm">
+            <input
+                type="text"
+                bind:value={searchQuery}
+                on:keyup={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Search files..."
+                class="block w-full pr-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+            />
+            <div class="absolute inset-y-0 right-0 flex items-center">
+                <button
+                    on:click={handleSearch}
+                    class="px-4 h-full bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none"
+                >
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+
     <nav class="mb-2">
         <ol class="flex items-center space-x-2 text-base">
             {#each folderPath as folder, index}
@@ -140,29 +200,71 @@
             My Files
         </h2>
         
-        <button
-            on:click={createFolder}
-            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="-ml-0.5 mr-1.5 h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+        <div class="flex items-center space-x-4">
+            <button
+                on:click={createFolder}
+                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-            </svg>
-            New Folder
-        </button>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="-ml-0.5 mr-1.5 h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                </svg>
+                New Folder
+            </button>
+            
+            <div class="relative">
+                <button
+                    on:click={() => showSortDropdown = !showSortDropdown}
+                    class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                >
+                    Sort: {sortField} ({sortOrder})
+                </button>
+                {#if showSortDropdown}
+                    <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                        <div class="py-1">
+                            <button
+                                on:click={() => {
+                                    handleSort("filename");
+                                    showSortDropdown = false;
+                                }}
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                            >
+                                Name {sortField === "filename" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+                            </button>
+                            <button
+                                on:click={() => {
+                                    handleSort("upload_date");
+                                    showSortDropdown = false;
+                                }}
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                            >
+                                Date {sortField === "upload_date" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+                            </button>
+                            <button
+                                on:click={() => {
+                                    handleSort("size");
+                                    showSortDropdown = false;
+                                }}
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                            >
+                                Size {sortField === "size" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+                            </button>
+                        </div>
+                    </div>
+                {/if}
+            </div>
+        </div>
     </div>
-
-    
 
     {#if isLoading}
         <div class="flex justify-center items-center py-12">
@@ -205,7 +307,7 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+                    d="M9 13h6m-6 4h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
                 />
             </svg>
             <h3 class="mt-2 text-sm font-medium text-gray-900">No files</h3>
@@ -222,24 +324,52 @@
                     <tr>
                         <th
                             scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >Name</th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            on:click={() => handleSort("filename")}
                         >
+                            <div class="flex items-center">
+                                Name
+                                {#if activeSort.field === 'filename'}
+                                    <span class="ml-1">
+                                        {activeSort.order === 'asc' ? '↑' : '↓'}
+                                    </span>
+                                {/if}
+                            </div>
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            on:click={() => handleSort("size")}
+                        >
+                            <div class="flex items-center">
+                                Size
+                                {#if activeSort.field === 'size'}
+                                    <span class="ml-1">
+                                        {activeSort.order === 'asc' ? '↑' : '↓'}
+                                    </span>
+                                {/if}
+                            </div>
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            on:click={() => handleSort("upload_date")}
+                        >
+                            <div class="flex items-center">
+                                Modified
+                                {#if activeSort.field === 'upload_date'}
+                                    <span class="ml-1">
+                                        {activeSort.order === 'asc' ? '↑' : '↓'}
+                                    </span>
+                                {/if}
+                            </div>
+                        </th>
                         <th
                             scope="col"
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >Size</th
                         >
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >Modified</th
-                        >
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >Actions</th
-                        >
+                            Actions
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -268,8 +398,7 @@
                                         </div>
                                         <div class="ml-4">
                                             <button
-                                                on:click={() =>
-                                                    openFolder(file)}
+                                                on:click={() => openFolder(file)}
                                                 class="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline focus:outline-none"
                                             >
                                                 {file.filename}
@@ -327,12 +456,13 @@
                                             {/if}
                                         </div>
                                         <div class="ml-4">
-                                            <div
-                                                class="text-sm font-medium text-gray-900 truncate max-w-xs"
+                                            <button
+                                                on:click={(e) => handlePreview(file, e)}
+                                                class="text-sm font-medium text-gray-900 hover:text-blue-600 truncate max-w-xs text-left"
                                                 title={file.filename}
                                             >
                                                 {file.filename}
-                                            </div>
+                                            </button>
                                         </div>
                                     {/if}
                                 </div>
@@ -363,28 +493,26 @@
                                 class="px-6 py-4 whitespace-nowrap text-sm font-medium"
                             >
                                 <div class="flex space-x-3">
-                                    {#if !file.is_folder}
-                                        <a
-                                            href={`http://localhost:8000/download/${file.id}`}
-                                            class="text-blue-600 hover:text-blue-900 flex items-center"
-                                            title="Download"
+                                    <a
+                                        href={`http://localhost:8000/download/${file.id}`}
+                                        class="text-blue-600 hover:text-blue-900 flex items-center"
+                                        title="Download"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-5 w-5"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
                                         >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                class="h-5 w-5"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                                />
-                                            </svg>
-                                        </a>
-                                    {/if}
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                            />
+                                        </svg>
+                                    </a>
                                     <button
                                         on:click={() => handleDelete(file.id)}
                                         class="text-red-600 hover:text-red-900 flex items-center"
@@ -414,3 +542,34 @@
         </div>
     {/if}
 </div>
+
+{#if showPreview && previewFile}
+    <Modal onClose={() => showPreview = false}>
+        <div class="p-4 max-w-4xl max-h-screen">
+            <h3 class="text-lg font-medium mb-4">{previewFile.filename}</h3>
+            
+            {#if previewFile.content_type?.startsWith("image/")}
+                <img
+                    src={`http://localhost:8000/preview/${previewFile.id}`}
+                    alt={previewFile.filename}
+                    class="max-w-full max-h-[80vh] object-contain"
+                />
+            {:else if previewFile.content_type === "application/pdf"}
+                <iframe
+                    src={`http://localhost:8000/preview/${previewFile.id}`}
+                    class="w-full h-[80vh] border"
+                    title={previewFile.filename}
+                ></iframe>
+            {/if}
+            
+            <div class="mt-4 flex justify-end">
+                <button
+                    on:click={() => showPreview = false}
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </Modal>
+{/if}
