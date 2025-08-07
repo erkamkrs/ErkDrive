@@ -1,3 +1,4 @@
+# Node
 node_modules
 
 # Output
@@ -22,12 +23,20 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-
-
-
 # MongoDB data
-.wt*
-.lock*
-.turtle*
+data/mongo/*.lock
+data/mongo/*.turtle
+data/mongo/*.wt
+data/mongo/*.wt*
+data/mongo/WiredTiger*
+data/mongo/_mdb_catalog.wt
+data/mongo/journal
 
 diagnostic.data/
+
+# MinIO internal system files
+data/minio/.minio.sys/**
+
+# Optional: specifically exclude .usage-cache and xl.meta if needed
+data/minio/.minio.sys/buckets/.usage-cache.bin.bkp/xl.meta
+data/minio/.minio.sys/buckets/.usage-cache.bin.bkp/xl.meta.tmp
