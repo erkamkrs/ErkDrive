@@ -82,7 +82,6 @@
 </script>
 
 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-    <!-- Breadcrumbs moved to top left with larger text -->
     <nav class="mb-2">
         <ol class="flex items-center space-x-2 text-base">
             {#each folderPath as folder, index}
@@ -122,7 +121,6 @@
         </div>
     </div>
 
-    <!-- Header with smaller New Folder button on right -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <svg
@@ -164,10 +162,8 @@
         </button>
     </div>
 
-    <!-- Centered and larger upload area -->
     
 
-    <!-- File table -->
     {#if isLoading}
         <div class="flex justify-center items-center py-12">
             <div

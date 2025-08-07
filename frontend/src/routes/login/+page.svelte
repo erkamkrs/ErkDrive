@@ -18,7 +18,7 @@
         if (!res.ok) {
             const err = await res.json();
             error = err.detail || "Login failed";
-            console.error("Login error:", err); // Add this line
+            console.error("Login error:", err); 
             return;
         }
 
@@ -27,7 +27,7 @@
         user.set(email);
         goto("/");
     } catch (err) {
-        console.error("Network error:", err); // Add this line
+        console.error("Network error:", err); 
         error = "Network error - could not reach server";
     }
 }
