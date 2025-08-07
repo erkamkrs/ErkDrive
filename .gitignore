@@ -24,8 +24,6 @@ vite.config.ts.timestamp-*
 
 
 
-# MinIO data
-data/minio/
 
 # MongoDB data
 .wt*
