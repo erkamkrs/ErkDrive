@@ -15,16 +15,16 @@ ErkDrive is a full-stack cloud storage application similar to Google Drive. It a
 ## 📸 Screenshots
 
 ### 🔐 Login Page  
-![Login Page](public/login.png)
+![Login Page](https://raw.githubusercontent.com/erkamkrs/ErkDrive/main/public/login.png)
 
 ### 📝 Register Page  
-![Register Page](public/register.png)
+![Register Page](https://raw.githubusercontent.com/erkamkrs/ErkDrive/main/public/register.png)
 
 ### 📁 File Browser  
-![File Browser](public/file-browser.png)
+![File Browser](https://raw.githubusercontent.com/erkamkrs/ErkDrive/main/public/file-browser.png)
 
 ### 📤 File Upload  
-![File Upload](public/upload.png)
+![File Upload](https://raw.githubusercontent.com/erkamkrs/ErkDrive/main/public/upload.png)
 
 
 ---
