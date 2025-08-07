@@ -12,37 +12,35 @@ ErkDrive is a full-stack cloud storage application similar to Google Drive. It a
 
 <br>
 
-## 📸 Screenshots
-
-### 🔐 Login Page  
-![Login Page](public/login.png)
-
-### 📝 Register Page  
-![Register Page](public/register.png)
-
-### 📁 File Browser  
-![File Browser](public/file-browser.png)
-
-### 📤 File Upload  
-![File Upload](public/upload.png)
-
-
----
-
 ## 🚀 Features
 
+### 🔐 Login Page  
 - **Authentication**
   - JWT-based secure login and token storage in SvelteKit stores
   - Route protection with redirect to `/login` if unauthenticated
 
-- **File Management**
+![Login Page](public/login.png)
+
+### 📝 Register Page  
+ - JWT-based secure register
+
+![Register Page](public/register.png)
+
+### 📁 File Management  
   - Upload, browse, and download files
   - Supports folder creation and breadcrumb navigation
   - Displays file type, size, and upload time
 
-- **Drag-and-Drop Upload**
+![File Browser](public/file-browser.png)
+
+### 📤 File Upload  
+  - Drag-and-Drop Upload
   - File dropzone supports images, PDFs, documents
   - Real-time upload status with error/success indicators
+
+![File Upload](public/upload.png)
+
+
 
 - **Backend API**
   - RESTful endpoints for login, register, upload, folder management
@@ -70,13 +68,14 @@ ErkDrive is a full-stack cloud storage application similar to Google Drive. It a
 │   │   ├── lib/
 │   │   │   └── components/    # FileBrowser, FileUpload, etc.
 │   │   ├── routes/            # +page.svelte files
-│   └── public/                # Static assets and screenshots
 ├── backend/                   # FastAPI app
 │   └── app/
 │       ├── main.py            # API endpoints
 │       └── auth.py            # Auth logic (assumed)
+├──  public/                # Static assets and screenshots
 ├── docker-compose.yml
 └── README.md
+
 ```
 
 ---
