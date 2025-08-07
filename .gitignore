@@ -31,7 +31,7 @@ data/mongo/*.wt*
 data/mongo/WiredTiger*
 data/mongo/_mdb_catalog.wt
 data/mongo/journal
-
+*.bson
 diagnostic.data/
 
 # MinIO internal system files

@@ -103,7 +103,7 @@
                         {/if}
                         <button
                             on:click={() => goToFolder(index)}
-                            class={`font-medium ${index === folderPath.length - 1 ? "text-blue-600 hover:text-blue-500" : "text-gray-500 hover:text-gray-700"}`}
+                            class={`font-medium text-2xl ${index === folderPath.length - 1 ? "text-gray-500 hover:gray-blue-600" : "text-gray-300 hover:text-gray-400"}`}
                         >
                             {folder.name === "root" ? "Home" : folder.name}
                         </button>
