@@ -545,14 +545,14 @@
 
 {#if showPreview && previewFile}
     <Modal onClose={() => showPreview = false}>
-        <div class="p-4 max-w-4xl max-h-screen">
+        <div class="p-4 max-w-6xl max-h-screen">
             <h3 class="text-lg font-medium mb-4">{previewFile.filename}</h3>
             
             {#if previewFile.content_type?.startsWith("image/")}
                 <img
                     src={`http://localhost:8000/preview/${previewFile.id}`}
                     alt={previewFile.filename}
-                    class="max-w-full max-h-[80vh] object-contain"
+                    class="max-w-full max-h-[120vh] object-contain"
                 />
             {:else if previewFile.content_type === "application/pdf"}
                 <iframe
