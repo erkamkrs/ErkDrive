@@ -43,6 +43,13 @@ ErkDrive is a full-stack cloud storage application similar to Google Drive. It a
 ![File Upload](public/upload.png)
 
 
+### 📤 File Preview  
+  - Click on filename to preview a file
+  - Preview images, PDFs, documents
+
+![File Preview](public/file-preview.png)
+![Preview](public/preview.png)
+
 
 - **Backend API**
   - RESTful endpoints for login, register, upload, folder management
