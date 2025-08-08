@@ -6,3 +6,6 @@ minio
 python-dotenv
 python-jose
 passlib[bcrypt]
+pytest
+pytest-mock
+httpx

@@ -150,6 +150,17 @@ These are set in the Docker Compose `backend` service via `.env` or directly in 
 
 ---
 
+
+## 🧪 Running Tests
+
+We use **pytest** for backend tests.
+
+```bash
+cd backend
+pip install -r requirements-test.txt
+pytest
+
+---
 ## 🧠 Auth Flow Summary
 
 - On login or registration, user receives a JWT token
