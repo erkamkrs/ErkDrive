@@ -557,7 +557,7 @@
             {:else if previewFile.content_type === "application/pdf"}
                 <iframe
                     src={`http://localhost:8000/preview/${previewFile.id}`}
-                    class="w-full h-[80vh] border"
+                    class="w-full h-120vh] border"
                     title={previewFile.filename}
                 ></iframe>
             {/if}
